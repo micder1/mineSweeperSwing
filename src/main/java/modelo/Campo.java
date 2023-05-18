@@ -7,9 +7,9 @@ public class Campo {
     private final int linha;
     private final int coluna;
 
-    private boolean aberto;
-    private boolean minado;
-    private boolean marcado;
+    private boolean aberto = false;
+    private boolean minado = false;
+    private boolean marcado = false;
 
     private List<Campo> vizinhos = new ArrayList<>();
     private List<CampoObservador> observadores = new ArrayList<>();
@@ -38,7 +38,7 @@ public class Campo {
      */
     boolean adicionarVizinho(Campo vizinho){
         boolean linhaDif = linha != vizinho.linha;
-        boolean colunaDif = linha != vizinho.coluna;
+        boolean colunaDif = coluna != vizinho.coluna;
         boolean diagonal = linhaDif && colunaDif;
 
         int deltaLinha = Math.abs(linha - vizinho.linha);
@@ -56,21 +56,21 @@ public class Campo {
         }
     }
 
-    void alternarMarcacao(){
+    public void alternarMarcacao(){
         if(!aberto) {
             marcado = !marcado;
 
-            if(marcado) {
-                notificarObservadores(CampoEvento.MARCAR);
-            } else{
-                notificarObservadores(CampoEvento.DESMARCAR);
-            }
+//            if(marcado) {
+//                notificarObservadores(CampoEvento.MARCAR);
+//            } else{
+//                notificarObservadores(CampoEvento.DESMARCAR);
+//            }
 
-            //notificarObservadores(marcado ? CampoEvento.MARCAR : CampoEvento.DESMARCAR);
+            notificarObservadores(marcado ? CampoEvento.MARCAR : CampoEvento.DESMARCAR);
         }
     }
 
-    boolean abrir(){
+    public boolean abrir(){
         if(!aberto && !marcado){
             if(minado){
                 notificarObservadores(CampoEvento.EXPLODIR);
@@ -88,7 +88,7 @@ public class Campo {
         }
     }
 
-    boolean vizinhancaSegura(){
+    public boolean vizinhancaSegura(){
         return vizinhos.stream().noneMatch(v -> v.minado);
     }
 
@@ -126,33 +126,35 @@ public class Campo {
     }
 
     boolean objetivoAlcancado(){
-        boolean desvendado = !marcado && aberto;
+        boolean desvendado = !minado && aberto;
         boolean protegido = minado && marcado;
         return desvendado || protegido;
     }
 
-    long minasNaVizinhanca(){
-        return vizinhos.stream().filter(v -> v.minado).count();
+    public int minasNaVizinhanca(){
+        return (int) vizinhos.stream().filter(v -> v.minado).count();
     }
 
     void reiniciar() {
         aberto = false;
         minado = false;
         marcado = false;
+
+        notificarObservadores(CampoEvento.REINICIAR);
     }
 
-    public String toString(){
-        if(marcado) {
-            return "X";
-        } else if(aberto && minado){
-            return "*";
-        } else if(aberto && minasNaVizinhanca() > 0){
-            return Long.toString(minasNaVizinhanca());
-        } else if(aberto) {
-            return " ";
-        } else {
-            return "?";
-        }
-    }
+//    public String toString(){
+//        if(marcado) {
+//            return "X";
+//        } else if(aberto && minado){
+//            return "*";
+//        } else if(aberto && minasNaVizinhanca() > 0){
+//            return Long.toString(minasNaVizinhanca());
+//        } else if(aberto) {
+//            return " ";
+//        } else {
+//            return "?";
+//        }
+//    }
 
 }
